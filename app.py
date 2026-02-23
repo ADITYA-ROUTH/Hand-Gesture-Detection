@@ -115,6 +115,13 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
 
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
+from streamlit_webrtc import webrtc_streamer, RTCConfiguration
+
+# --- WebRTC STUN Server Configuration for Cloud Deployment ---
+RTC_CONFIGURATION = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
+
 # --- Streamlit UI ---
 st.markdown("### 🎥 Camera Feed")
 st.write("Click **Start** below to allow permissions and begin gesture detection.")
@@ -122,7 +129,8 @@ st.write("Click **Start** below to allow permissions and begin gesture detection
 webrtc_streamer(
     key="hand-gesture-detection",
     video_frame_callback=video_frame_callback,
-    media_stream_constraints={"video": True, "audio": False}
+    media_stream_constraints={"video": True, "audio": False},
+    rtc_configuration=RTC_CONFIGURATION
 )
 
 st.markdown("---")
