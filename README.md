@@ -20,6 +20,28 @@ This project tracks a single hand using your webcam, counts raised fingers, and 
 
 ---
 
+## 🏗️ Project Architecture
+
+The following diagram illustrates how video frames are securely captured from the client's browser, processed on the server via MediaPipe, and returned live to the client UI:
+
+```mermaid
+graph TD;
+    A[Client Browser Web Cam] -->|WebRTC Video Stream| B(Streamlit Server);
+    B -->|Extracts Frame via av.VideoFrame| C{OpenCV Image Pre-Processing};
+    C -->|Converted RGB Image| D[MediaPipe Tasks Vision API];
+    D -->|Inference Result| E{Gesture & Finger Logic};
+    E -->|Gesture String & Landmarks| F{OpenCV Overlay Drawing};
+    F -->|Modified Output Frame| G(Streamlit Server);
+    G -->|Returns WebRTC Video Stream| A[Client Browser Viewport];
+    
+    style A fill:#4B7BFF,stroke:#333,stroke-width:2px,color:#fff
+    style B fill:#FF4B4B,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#00A67E,stroke:#333,stroke-width:2px,color:#fff
+    style G fill:#FF4B4B,stroke:#333,stroke-width:2px,color:#fff
+```
+
+---
+
 ## 🚀 How to Run Locally
 
 ### Prerequisites
