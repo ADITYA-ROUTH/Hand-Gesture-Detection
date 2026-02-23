@@ -11,6 +11,15 @@ This project tracks a single hand using your webcam, counts raised fingers, and 
 
 ---
 
+## 🛠️ Tech Stack
+- **Python 3.13** (Core programming language)
+- **OpenCV** (`opencv-python-headless`): Computer vision library for image manipulation and frame processing.
+- **MediaPipe Tasks Vision API**: Machine learning pipeline for robust real-time hand landmark detection.
+- **Streamlit**: Web application framework for generating rapid front-end UI.
+- **Streamlit-WebRTC**: Enables real-time video streaming capabilities over WebRTC for the browser.
+
+---
+
 ## 🚀 How to Run Locally
 
 ### Prerequisites
