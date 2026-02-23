@@ -1,0 +1,6 @@
+# Core libraries
+opencv-python-headless
+mediapipe
+# Web deployment libraries
+streamlit
+streamlit-webrtc
