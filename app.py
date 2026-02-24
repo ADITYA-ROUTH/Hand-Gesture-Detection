@@ -7,6 +7,25 @@ import urllib.request
 import os
 import av
 import numpy as np
+import threading
+
+# --- MonkeyPatch for Streamlit-WebRTC shutdown on Python 3.13 ---
+# Streamlit Cloud uses Python 3.13 by default, which can cause an AttributeError 
+# during thread shutdown in streamlit-webrtc. This safe wrapper prevents the crash.
+try:
+    import streamlit_webrtc.shutdown
+    if hasattr(streamlit_webrtc.shutdown, 'SessionShutdownObserver'):
+        original_stop = streamlit_webrtc.shutdown.SessionShutdownObserver.stop
+        
+        def safe_stop(self, timeout: float = 1.0) -> None:
+            try:
+                original_stop(self, timeout)
+            except Exception:
+                pass
+                
+        streamlit_webrtc.shutdown.SessionShutdownObserver.stop = safe_stop
+except Exception:
+    pass
 
 # --- Initialization & Setup ---
 st.set_page_config(page_title="Hand Gesture Detection", layout="wide")
