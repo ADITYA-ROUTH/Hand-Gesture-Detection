@@ -41,10 +41,13 @@ VisionRunningMode = mp.tasks.vision.RunningMode
 model_path = 'hand_landmarker.task'
 if not os.path.exists(model_path):
     with st.spinner("Downloading Hand Landmarker Model..."):
-        urllib.request.urlretrieve(
-            "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task",
-            model_path
-        )
+        try:
+            urllib.request.urlretrieve(
+                "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task",
+                model_path
+            )
+        except Exception as e:
+            st.error(f"Error downloading model: {e}")
 
 # --- Helper Functions ---
 def fingers_up(landmarks):
@@ -75,13 +78,17 @@ def fingers_up(landmarks):
 
 # --- webrtc_streamer Video Frame Callback ---
 
-# Initialize landmarker globally for the callback
-options = HandLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path=model_path),
-    running_mode=VisionRunningMode.IMAGE,
-    num_hands=1
-)
-landmarker = HandLandmarker.create_from_options(options)
+thread_local = threading.local()
+
+def get_landmarker():
+    if not hasattr(thread_local, 'landmarker'):
+        options = HandLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=model_path),
+            running_mode=VisionRunningMode.IMAGE,
+            num_hands=1
+        )
+        thread_local.landmarker = HandLandmarker.create_from_options(options)
+    return thread_local.landmarker
 
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     img = frame.to_ndarray(format="bgr24")
@@ -94,6 +101,7 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
 
     # Detect hands (Synchronous IMAGE mode for WebRTC frames)
+    landmarker = get_landmarker()
     detection_result = landmarker.detect(mp_image)
 
     if detection_result and detection_result.hand_landmarks:
